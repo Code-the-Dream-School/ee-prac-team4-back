@@ -8,9 +8,13 @@ const logger = require('morgan');
 
 const authenticateUser = require('../middleware/authentication');
 
+const authenticateUser = require('../middleware/authentication');
+
+// routers
 const mainRouter = require('./routes/mainRouter.js');
 const errorHandlerMiddleware = require('../middleware/error-handler');
 const notFoundMiddleware = require('../middleware/not-found');
+const authRouter = require('./routes/auth.js');
 
 // middleware
 app.use(cors());
@@ -25,5 +29,6 @@ app.use(authenticateUser);
 
 // routes
 app.use('/api/v1', mainRouter);
+app.use('/api/v1/auth', authRouter);
 
 module.exports = app;
