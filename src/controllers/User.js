@@ -4,7 +4,7 @@ const { StatusCodes } = require('http-status-codes');
 const bcrypt = require('bcryptjs');
 const cookie = require('cookie');
 
-const getUserById = async (req, res) => {
+const UserController = async (req, res) => {
     try {
         // extract userId from the route params
         const userId = req.params.id;
@@ -73,4 +73,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { getUserById, login, register };
+module.exports = { UserController, login, register };
