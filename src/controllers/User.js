@@ -1,10 +1,11 @@
 const User = require('../models/User');
+const { createJWT, comparePassword } = require('./auth');
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
 const bcrypt = require('bcryptjs');
 const cookie = require('cookie');
 
-const UserController = async (req, res) => {
+const getById = async (req, res) => {
     try {
         // extract userId from the route params
         const userId = req.params.id;
@@ -26,11 +27,41 @@ const UserController = async (req, res) => {
 };
 
 const register = async (req, res) => {
-    const user = await User.create({ ...req.body })
-    const token = user.createJWT()
-    res
-    .status(StatusCodes.CREATED)
-    .json({ user: { username: user.username }, token })
+    const { username, firstName, lastName, role, email, password } = req.body;
+
+    try {
+        // check if email already exists
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            return res.status(400).json({ message: 'User with this email already exists' });
+        }
+
+        // hash the password before saving it to the database
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // create a new user with the hashed password
+        const newUser = new User({
+            username,
+            firstName,
+            lastName,
+            role,
+            email,
+            password: hashedPassword,
+        });
+
+        // save the user to the database
+        await newUser.save();
+
+        // generate a JWT token for the newly registered user
+        const token = createJWT(newUser);
+
+        res.status(StatusCodes.CREATED).json({ user: { username: newUser.username }, token });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 };
 
 const login = async (req, res) => {
@@ -73,4 +104,24 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { UserController, login, register };
+// userSchema.pre('save', async function() {
+//     const salt = await bcrypt.genSalt(10);
+//     this.password = await bcrypt.hash(this.password, salt)
+// })
+
+// userSchema.methods.createJWT = function () {
+//     return jwt.sign(
+//         { userId: this._id, username: this.username },
+//         process.env.JWT_SECRET,
+//         {
+//             expiresIn: process.env.JWT_LIFETIME,
+//         }
+//     )
+// }
+
+// userSchema.methods.comparePassword = async function (candidatePassword) {
+//     const isMatch = await bcrypt.compare(candidatePassword, this.password)
+//     return isMatch
+// }
+
+module.exports = { getById, login, register };
