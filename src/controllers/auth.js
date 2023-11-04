@@ -11,8 +11,4 @@ function createJWT(user) {
     );
 }
 
-async function comparePassword(candidatePassword, hashedPassword) {
-    return await bcrypt.compare(candidatePassword, hashedPassword);
-}
-
-module.exports = { createJWT, comparePassword };
+module.exports = { createJWT };
