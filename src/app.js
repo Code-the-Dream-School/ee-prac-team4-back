@@ -4,7 +4,9 @@ const cors = require('cors')
 const favicon = require('express-favicon');
 const logger = require('morgan');
 
+// routers
 const mainRouter = require('./routes/mainRouter.js');
+const userRouter = require('./routes/User.js');
 
 // middleware
 app.use(cors());
@@ -16,5 +18,6 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 
 // routes
 app.use('/api/v1', mainRouter);
+app.use('/api/v1/user', userRouter);
 
 module.exports = app;
