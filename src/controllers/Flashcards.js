@@ -50,12 +50,12 @@ const createFlashcard = async (req, res) => {
 
 const updateFlashcard = async (req, res) => {
     const {
-        body: { title, author, question, answer, createdBy },
+        body: { topic, author, question, answer, createdBy },
         user: { userId },
         params: { id: flashcardId }
     } = req;
 
-    if (title === '' || author === '' || question === '' || answer === '' || createdBy === '') {
+    if (topic === '' || author === '' || question === '' || answer === '' || createdBy === '') {
         console.log('Fields cannot be empty!');
     }
 
