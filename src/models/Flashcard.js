@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const flashcardSchema = new mongoose.Schema({
-    title: {
+    topic: {
         type: String,
-        unique: [true, 'This username is already taken'],
+        unique: [true, 'This topic is already taken'],
         required: [true, 'Cannot be blank'],
         maxlength: 150,
     },
