@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors')
 const favicon = require('express-favicon');
 const logger = require('morgan');
+const cookieParser = require("cookie-parser");
 
 const authenticateUser = require('./middleware/authentication');
 
@@ -19,12 +20,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
 app.use(express.static('public'))
 app.use(favicon(__dirname + '/public/favicon.ico'));
-
+app.use(cookieParser());
 
 // routes
 app.use('/api/v1', mainRouter);
 app.use('/api/v1/user', userRouter);
-app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter); // add other authentification middleware later (added this middleware to be able to test flashcards on Postman)
+app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
 app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
 
 

@@ -22,10 +22,10 @@ const flashcardSchema = new mongoose.Schema({
         required: [true, 'Cannot be blank'],
     },
     createdBy: {
-        // type: mongoose.Types.ObjectId,
-        type: String,
+        type: mongoose.Types.ObjectId,
+        // type: String,
         ref: 'User',
-        required: [true]
+        // required: [true]
     }
 }, { timestamps: true });
 
