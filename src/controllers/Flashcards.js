@@ -41,7 +41,7 @@ const getFlashcard = async (req, res) => {
 
 const createFlashcard = async (req, res) => {
     console.log('Request body:', req.body);
-    console.log('User Object:', req.user);
+    console.log('User Object:', req.user); // !!! undefined
 
     req.body.createdBy = req.user.userId;
     const flashcard = await Flashcard.create(req.body);
