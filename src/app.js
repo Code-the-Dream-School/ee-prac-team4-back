@@ -24,7 +24,6 @@ app.use(cookieParser());
 
 // routes
 app.use('/api/v1', mainRouter);
-app.use('/api/v1/user', authenticateUser);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
 app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
