@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const flashcardSchema = new mongoose.Schema({
     topic: {
         type: String,
-        unique: [true, 'This topic is already taken'],
         required: [true, 'Cannot be blank'],
+        enum: ['Ruby on Rails', 'Node.js', 'React', 'HTML', 'CSS', 'Express'],
         maxlength: 150,
     },
     question: {
@@ -24,3 +24,9 @@ const flashcardSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Flashcard', flashcardSchema);
+
+// type: String,
+//         required: [true, 'Cannot be blank'],
+//         match: [/^[a-zA-Z0-9]+$/, 'Username is invalid'],
+//         unique: [true, 'This username is already taken'],
+//         maxlength: 50,
