@@ -24,9 +24,3 @@ const flashcardSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Flashcard', flashcardSchema);
-
-// type: String,
-//         required: [true, 'Cannot be blank'],
-//         match: [/^[a-zA-Z0-9]+$/, 'Username is invalid'],
-//         unique: [true, 'This username is already taken'],
-//         maxlength: 50,
