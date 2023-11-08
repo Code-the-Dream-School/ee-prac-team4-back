@@ -7,11 +7,6 @@ const flashcardSchema = new mongoose.Schema({
         required: [true, 'Cannot be blank'],
         maxlength: 150,
     },
-    author: {
-        type: String,
-        required: [true, 'Cannot be blank'],
-        maxlength: 100,
-    },
     question: {
         type: String,
         required: [true, 'Cannot be blank'],
@@ -20,12 +15,11 @@ const flashcardSchema = new mongoose.Schema({
     answer: {
         type: String,
         required: [true, 'Cannot be blank'],
+        maxlength: 500,
     },
     createdBy: {
         type: mongoose.Types.ObjectId,
-        // type: String,
         ref: 'User',
-        // required: [true]
     }
 }, { timestamps: true });
 

@@ -2,13 +2,51 @@ const Flashcard = require('../models/Flashcard');
 const { StatusCodes } = require('http-status-codes');
 
 const getAllFlashcards = async (req, res) => {
-    const flashcards = await Flashcard.find({}).sort('createdAt');
-    res.status(StatusCodes.OK).json({ flashcards, count: flashcards.length });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    try {
+        const offset = (page - 1) * limit;
+        const totalFlashcards = await Flashcard.countDocuments({});
+        const flashcards = await Flashcard.find({})
+            .sort('createdAt')
+            .skip(offset)
+            .limit(limit);
+
+            res.status(StatusCodes.OK).json({ 
+                flashcards, 
+                currentPage: page,
+                totalPages: Math.ceil(totalFlashcards / limit),
+                totalItems: totalFlashcards, 
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' })
+    }
 };
 
 const getUserFlashcards = async (req, res) => {
-    const flashcards = await Flashcard.find({ createdBy: req.user.userId }).sort('createdAt');
-    res.status(StatusCodes.OK).json({ flashcards, count: flashcards.length });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    try {
+        const offset = (page - 1) * limit;
+        const totalFlashcards = await Flashcard.countDocuments({ createdBy: req.user.userId });
+        const flashcards = await Flashcard.find({ createdBy: req.user.userId })
+            .sort('createdAt')
+            .skip(offset)
+            .limit(limit);
+
+            res.status(StatusCodes.OK).json({ 
+                flashcards, 
+                currentPage: page,
+                totalPages: Math.ceil(totalFlashcards / limit),
+                totalItems: totalFlashcards, 
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' })
+    }
 };
 
 const getFlashcard = async (req, res) => {
@@ -17,21 +55,17 @@ const getFlashcard = async (req, res) => {
         params: { id: flashcardId } 
     } = req;
 
-    console.log("User ID:", userId);
-    console.log("Flashcard ID:", flashcardId);
-
     try {
         const flashcard = await Flashcard.findOne({
             _id: flashcardId, createdBy: userId
         });
     
         if (!flashcard) {
-            console.log(`No flashcard with id ${flashcardId}`);
-            return res.status(StatusCodes.NOT_FOUND).json({ msg: "Flashcard not found" });
+            return res.status(StatusCodes.NOT_FOUND).json({ msg: `No flashcard with id ${flashcardId}` });
         }
     
-        console.log('Flashcard 11111', flashcard);
         res.status(StatusCodes.OK).json({ flashcard });
+        
     } catch (error) {
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Internal server error" });
@@ -40,8 +74,6 @@ const getFlashcard = async (req, res) => {
 };
 
 const createFlashcard = async (req, res) => {
-    console.log('Request body:', req.body);
-    console.log('User Object:', req.user); // !!! undefined
 
     req.body.createdBy = req.user.userId;
     const flashcard = await Flashcard.create(req.body);
@@ -50,23 +82,37 @@ const createFlashcard = async (req, res) => {
 
 const updateFlashcard = async (req, res) => {
     const {
-        body: { topic, author, question, answer, createdBy },
+        body: { topic, question, answer, createdBy },
         user: { userId },
         params: { id: flashcardId }
     } = req;
 
-    if (topic === '' || author === '' || question === '' || answer === '' || createdBy === '') {
-        console.log('Fields cannot be empty!');
+    const updatedFields = {};
+
+    if (topic != undefined) {
+        updatedFields.topic = topic;
+    }
+
+    if (question != undefined) {
+        updatedFields.question = question;
+    }
+
+    if (answer != undefined) {
+        updatedFields.answer = answer;
+    }
+
+    if (Object.keys(updatedFields).length === 0) {
+        return res.status(400).json({ msg: 'No fields to update' });
     }
 
     const flashcard = await Flashcard.findByIdAndUpdate(
         { _id: flashcardId, createdBy: userId },
-        req.body,
+        { $set: updatedFields },
         { new: true, runValidators: true }
     )
 
     if (!flashcard) {
-        console.log(`No flashcard with id ${flashcardId}`);
+        return res.status(400).json({ msg: `No flashcard with id ${flashcardId}` });
     }
 
     res.status(StatusCodes.OK).json({ flashcard });
@@ -83,7 +129,7 @@ const deleteFlashcard = async (req, res) => {
     );
 
     if(!flashcard) {
-        console.log(`No flashcard with id ${flashcardId}`);
+        return res.status(400).json({ msg: `No flashcard with id ${flashcardId}` });
     }
 
     res.status(StatusCodes.OK).json({ msg: "Flashcard deleted" })
