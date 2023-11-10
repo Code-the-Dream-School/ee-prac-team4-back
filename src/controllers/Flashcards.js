@@ -1,6 +1,7 @@
 const Flashcard = require('../models/Flashcard');
 const { StatusCodes } = require('http-status-codes');
 
+// GET all flashcards for any unauthenticated user
 const getAllFlashcards = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -25,6 +26,7 @@ const getAllFlashcards = async (req, res) => {
     }
 };
 
+// GET the flashcards of a specific user (for a logged in user)
 const getUserFlashcards = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -49,6 +51,15 @@ const getUserFlashcards = async (req, res) => {
     }
 };
 
+// get the flashcards that appertain to a specific deck
+const getFlashcardForDeck = async (req, res) => {
+
+    req.body.createdBy = req.user.userId;
+    const flashcards = await Flashcard.find({ createdBy: req.user.userId, deck: req.id }).sort('createdAt');
+    res.status(StatusCodes.CREATED).json({ flashcards, count: flashcards.length });
+};
+
+// get one flashcard
 const getFlashcard = async (req, res) => {
     const { 
         user: { userId }, 
@@ -73,6 +84,7 @@ const getFlashcard = async (req, res) => {
     
 };
 
+// create flashcard according to the schema
 const createFlashcard = async (req, res) => {
 
     req.body.createdBy = req.user.userId;
@@ -80,9 +92,10 @@ const createFlashcard = async (req, res) => {
     res.status(StatusCodes.CREATED).json({ flashcard });
 };
 
+// update flashcard
 const updateFlashcard = async (req, res) => {
     const {
-        body: { topic, question, answer, createdBy },
+        body: { topic, question, answer, resources, hint, createdBy },
         user: { userId },
         params: { id: flashcardId }
     } = req;
@@ -99,6 +112,14 @@ const updateFlashcard = async (req, res) => {
 
     if (answer != undefined) {
         updatedFields.answer = answer;
+    }
+
+    if (resources != undefined) {
+        updatedFields.resources = resources;
+    }
+
+    if (hint != undefined) {
+        updatedFields.hint = hint;
     }
 
     if (Object.keys(updatedFields).length === 0) {
@@ -118,6 +139,7 @@ const updateFlashcard = async (req, res) => {
     res.status(StatusCodes.OK).json({ flashcard });
 }
 
+// delete flashcard
 const deleteFlashcard = async (req, res) => {
     const {
         user: { userId },
@@ -138,8 +160,9 @@ const deleteFlashcard = async (req, res) => {
 module.exports = {
     getAllFlashcards,
     getUserFlashcards,
+    getFlashcardForDeck,
     getFlashcard,
     createFlashcard,
     updateFlashcard,
-    deleteFlashcard
+    deleteFlashcard,
 }
