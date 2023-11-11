@@ -15,6 +15,8 @@ const notFoundMiddleware = require('../middleware/not-found');
 const userRouter = require('./routes/User.js');
 const flashcardsRouter = require('./routes/Flashcards.js');
 const allUnauthFlashcardsRouter = require('./routes/flashcardsAllUnauth.js');
+const decksRouter = require('./routes/Decks.js');
+const allUnauthDecksRouter = require('./routes/decksAllUnauth');
 
 // middleware
 app.use(cors());
@@ -31,6 +33,8 @@ app.use(authenticateUser);app.use(cookieParser());
 app.use('/api/v1', mainRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
+app.use('/api/v1/deck', authenticateUser, decksRouter);
 app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
+app.use('/api/v1/decksAll', allUnauthDecksRouter);
 
 module.exports = app;
