@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
 const deckSchema = new mongoose.Schema({
-    title: {
+    topic: {
         type: String,
-        required: [true, 'Title cannot be blank'],
+        required: [true, 'Topic cannot be blank'],
+        maxlength: 300,
+    },
+    subtopic: {
+        type: String,
+        required: [true, 'Subtopic cannot be blank'],
         maxlength: 300,
     },
     isPublic: {
