@@ -8,7 +8,6 @@ const deckSchema = new mongoose.Schema({
     },
     subtopic: {
         type: String,
-        required: [true, 'Subtopic cannot be blank'],
         maxlength: 300,
     },
     isPublic: {
