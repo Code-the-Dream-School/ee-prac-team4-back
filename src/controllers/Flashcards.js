@@ -113,16 +113,12 @@ const createFlashcard = async (req, res) => {
 // update flashcard
 const updateFlashcard = async (req, res) => {
     const {
-        body: { topic, question, answer, resources, hint, createdBy },
+        body: { question, answer, resources, hint, createdBy },
         user: { userId },
         params: { id: flashcardId }
     } = req;
 
     const updatedFields = {};
-
-    if (topic !== undefined) {
-        updatedFields.topic = topic;
-    }
 
     if (question !== undefined) {
         updatedFields.question = question;

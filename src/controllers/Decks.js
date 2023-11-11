@@ -88,15 +88,19 @@ const createDeck = async (req, res) => {
 // update deck
 const updateDeck = async (req, res) => {
     const {
-        body: { title, isPublic, createdBy, flashcards },
+        body: { topic, subtopic, isPublic, createdBy, flashcards },
         user: { userId },
         params: { id: deckId }
     } = req;
 
     const updatedFields = {};
 
-    if (title !== undefined) {
-        updatedFields.title = title;
+    if (topic !== undefined) {
+        updatedFields.topic = topic;
+    }
+
+    if (subtopic !== undefined) {
+        updatedFields.subtopic = subtopic;
     }
 
     if (isPublic !== undefined) {

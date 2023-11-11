@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const flashcardSchema = new mongoose.Schema({
-    topic: {
-        type: String,
-        required: [true, 'Topic field cannot be blank'],
-        enum: ['Ruby on Rails', 'Node.js', 'React', 'HTML', 'CSS', 'Express'],
-    },
     question: {
         type: String,
         required: [true, 'Question field cannot be blank'],
