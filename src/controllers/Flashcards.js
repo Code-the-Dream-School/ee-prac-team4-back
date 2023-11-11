@@ -1,4 +1,5 @@
 const Flashcard = require('../models/Flashcard');
+const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
 
 // GET all flashcards for any unauthenticated user
@@ -51,9 +52,26 @@ const getUserFlashcards = async (req, res) => {
     }
 };
 
-// get the flashcards that appertain to a specific deck
-const getFlashcardForDeck = async (req, res) => {
+// (1) get detailed deck information along with flashcards 
+const getDeckWithFlashcards = async (req, res) => {
+    try {
+        const deckId = req.params.deckId;
+        const deck = await Deck.findById(deckId).populate('flashcards');
 
+        if (!deck) {
+            return res.status(StatusCodes.NOT_FOUND).json({ msg: 'Deck not found' });
+        }
+
+        res.status(StatusCodes.OK).json({ deck });
+
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' })
+    }
+};
+
+// (2) get the flashcards that appertain to a specific deck 
+const getFlashcardsForDeck = async (req, res) => {
     req.body.createdBy = req.user.userId;
     const flashcards = await Flashcard.find({ createdBy: req.user.userId, deck: req.id }).sort('createdAt');
     res.status(StatusCodes.CREATED).json({ flashcards, count: flashcards.length });
@@ -102,23 +120,23 @@ const updateFlashcard = async (req, res) => {
 
     const updatedFields = {};
 
-    if (topic != undefined) {
+    if (topic !== undefined) {
         updatedFields.topic = topic;
     }
 
-    if (question != undefined) {
+    if (question !== undefined) {
         updatedFields.question = question;
     }
 
-    if (answer != undefined) {
+    if (answer !== undefined) {
         updatedFields.answer = answer;
     }
 
-    if (resources != undefined) {
+    if (resources !== undefined) {
         updatedFields.resources = resources;
     }
 
-    if (hint != undefined) {
+    if (hint !== undefined) {
         updatedFields.hint = hint;
     }
 
@@ -152,15 +170,16 @@ const deleteFlashcard = async (req, res) => {
 
     if(!flashcard) {
         return res.status(400).json({ msg: `No flashcard with id ${flashcardId}` });
-    }
+    };
 
-    res.status(StatusCodes.OK).json({ msg: "Flashcard deleted" })
+    res.status(StatusCodes.OK).json({ msg: "Flashcard deleted" });
 };
 
 module.exports = {
     getAllFlashcards,
     getUserFlashcards,
-    getFlashcardForDeck,
+    getFlashcardsForDeck,
+    getDeckWithFlashcards,
     getFlashcard,
     createFlashcard,
     updateFlashcard,
