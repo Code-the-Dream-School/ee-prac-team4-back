@@ -6,11 +6,19 @@ const cors = require('cors')
 const favicon = require('express-favicon');
 const logger = require('morgan');
 
-const authenticateUser = require('../middleware/authentication');
 
+const authenticateUser = require('../middleware/authentication');
+const cookieParser = require("cookie-parser");
+
+// routers
 const mainRouter = require('./routes/mainRouter.js');
 const errorHandlerMiddleware = require('../middleware/error-handler');
 const notFoundMiddleware = require('../middleware/not-found');
+const userRouter = require('./routes/User.js');
+const flashcardsRouter = require('./routes/Flashcards.js');
+const allUnauthFlashcardsRouter = require('./routes/flashcardsAllUnauth.js');
+const decksRouter = require('./routes/Decks.js');
+const allUnauthDecksRouter = require('./routes/decksAllUnauth');
 
 // middleware
 app.use(cors());
@@ -19,11 +27,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
 app.use(express.static('public'))
 app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(cookieParser());
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 app.use(authenticateUser);
 
 // routes
 app.use('/api/v1', mainRouter);
+app.use('/api/v1/user', userRouter);
+app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
+app.use('/api/v1/deck', authenticateUser, decksRouter);
+app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
+app.use('/api/v1/decksAll', allUnauthDecksRouter);
 
 module.exports = app;
