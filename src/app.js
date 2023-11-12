@@ -5,11 +5,12 @@ const app = express();
 const cors = require('cors')
 const favicon = require('express-favicon');
 const logger = require('morgan');
-const express = require("express");
 
-const authenticateUser = require('./middleware/authentication');
+const authenticateUser = require('../middleware/authentication');
 
 const mainRouter = require('./routes/mainRouter.js');
+const errorHandlerMiddleware = require('../middleware/error-handler');
+const notFoundMiddleware = require('../middleware/not-found');
 
 // middleware
 app.use(cors());
@@ -20,6 +21,7 @@ app.use(express.static('public'))
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
+app.use(authenticateUser);
 
 // routes
 app.use('/api/v1', mainRouter);
