@@ -1,9 +1,9 @@
 const User = require('../models/User');
-const { createJWT, comparePassword } = require('./auth');
+const { createJWT } = require('./auth');
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
 const bcrypt = require('bcryptjs');
-const cookie = require('cookie');
+const cookies = require('cookie');
 
 const getById = async (req, res) => {
     try {
@@ -81,13 +81,15 @@ const login = async (req, res) => {
         }
 
         // Create a JWT - JSON Web Token
-        const token = jwt.sign({ userId: user.username }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { // or username
             expiresIn: process.env.JWT_LIFETIME,
         });
 
+        req.user = { userId: user._id };
+
         res.setHeader(
             'Set-Cookie',
-            cookie.serialize('token', token, {
+            cookies.serialize('token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
@@ -97,31 +99,20 @@ const login = async (req, res) => {
         );
 
         // Send the JWT token in the response
-        res.status(200).json({ token });
+        // res.status(200).json({ token });
+        res.status(200).json({ user: { username: user.username }, token });
 
     } catch (error) {
         console.error(error);
+        res.status(500).json({ msg: 'Internal server error' })
     }
 };
 
-// userSchema.pre('save', async function() {
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt)
-// })
+const logout = async (req, res) => {
+    return res
+        .clearCookie('token')
+        .status(200)
+        .json({ msg: 'Successfully logged out' })
+}
 
-// userSchema.methods.createJWT = function () {
-//     return jwt.sign(
-//         { userId: this._id, username: this.username },
-//         process.env.JWT_SECRET,
-//         {
-//             expiresIn: process.env.JWT_LIFETIME,
-//         }
-//     )
-// }
-
-// userSchema.methods.comparePassword = async function (candidatePassword) {
-//     const isMatch = await bcrypt.compare(candidatePassword, this.password)
-//     return isMatch
-// }
-
-module.exports = { getById, login, register };
+module.exports = { getById, login, register, logout };
