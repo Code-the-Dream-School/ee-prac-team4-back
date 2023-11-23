@@ -15,6 +15,30 @@ const allUnauthFlashcardsRouter = require('./routes/flashcardsAllUnauth.js');
 const decksRouter = require('./routes/Decks.js');
 const allUnauthDecksRouter = require('./routes/decksAllUnauth');
 
+// swagger
+const swaggerUI = require('swagger-ui-express')
+const swaggerJsDoc = require("swagger-jsdoc")
+
+const options = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Flashcards API",
+            version: "1.0.0",
+            description: "An Express Flashcards API"
+        },
+        servers: [
+            {
+                url: "http://localhost:8000",
+                url: "http://localhost:3000"
+            }
+        ],
+    },
+    apis: ["./routes/*.js"],
+};
+
+const specs = swaggerJsDoc(options)
+
 // middleware
 app.use(cors());
 app.use(express.json());
@@ -31,5 +55,7 @@ app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
 app.use('/api/v1/deck', authenticateUser, decksRouter);
 app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
 app.use('/api/v1/decksAll', allUnauthDecksRouter);
+
+app.use("/api/v1/api-docs", swaggerUI.serve, swaggerUI.setup(specs))
 
 module.exports = app;
