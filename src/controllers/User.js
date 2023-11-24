@@ -99,7 +99,6 @@ const login = async (req, res) => {
         );
 
         // Send the JWT token in the response
-        // res.status(200).json({ token });
         res.status(200).json({ user: { username: user.username }, token });
 
     } catch (error) {
