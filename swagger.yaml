@@ -1,0 +1,298 @@
+openapi: 3.0.0
+info:
+  title: Flashcards API
+  version: 1.0.0
+  description: An Express Flashcards API
+servers:
+  - url: http://localhost:8000
+    variables: {}
+paths:
+  /api/v1/user/register:
+    post:
+      summary: Register a new user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        200:
+          description: The user was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        500:
+          description: Some server error
+
+  /api/v1/user/login:
+    post:
+      summary: User login
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: User's email
+                password:
+                  type: string
+                  description: User's password
+      responses:
+        200:
+          description: The user successfully logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              token:
+                type: string
+                description: JWT token for authentication
+        401:
+          description: Invalid email or password
+        500:
+          description: Some server error
+          content:
+            aplication/json:
+              example:
+                error: Internal server error
+
+  /api/v1/user/{id}:
+    get:
+      summary: Returns a single user by id
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the user
+          schema:
+            type: string
+      responses:
+        200:
+          description: A registered user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /api/v1/user/logout:
+    post:
+      summary: Loggs out the user
+      tags: [Users]
+      responses:
+        200:
+          description: Successfully logged out
+        500:
+          description: Some server error
+          content:
+            application/json:
+              example:
+                error: Internal server error
+  /api/v1/flashcard:
+    post:
+      summary: Create a new flashcard
+      tags: [Flashcards]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Flashcard"
+      responses:
+        201:
+          description: Flashcard created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Flashcard"
+        500:
+          description: Internal server error
+    get:
+      summary: Get flashcards for the logged-in user
+      tags: [Flashcards]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of items per page
+      responses:
+        200:
+          description: List of flashcards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flashcards:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Flashcard"
+                  currentPage:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  totalItems:
+                    type: integer
+        500:
+          description: Internal server error
+  /api/v1/flashcard/{id}:
+    get:
+      summary: Get a specific flashcard
+      tags: [Flashcards]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID of the flashcard
+      responses:
+        200:
+          description: Flashcard retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Flashcard"
+        404:
+          description: Flashcard not found
+        500:
+          description: Internal server error
+    delete:
+      summary: Delete a specific flashcard
+      tags: [Flashcards]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID of the flashcard
+      responses:
+        200:
+          description: Flashcard deleted successfully
+        400:
+          description: Flashcard not found
+        500:
+          description: Internal server error
+    patch:
+      summary: Update a specific flashcard
+      tags: [Flashcards]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID of the flashcard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                  description: The updated question
+                answer:
+                  type: string
+                  description: The updated answer
+                resources:
+                  type: string
+                  description: The updated resources
+                hint:
+                  type: string
+                  description: The updated hint
+      responses:
+        200:
+          description: Flashcard updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Flashcard"
+        400:
+          description: No fields to update
+        500:
+          description: Internal server error
+components:
+  schemas:
+    User:
+      type: object
+      required: -username
+        -firstName
+        -lastName
+        -role
+        -email
+        -password
+      properties:
+        username:
+          type: string
+          description: username
+        firstName:
+          type: string
+          description: first name of the user
+        lastName:
+          type: string
+          description: last name of the user
+        role:
+          type: string
+          description: choose from available options of Mentor, Student, or Apprentice
+        email:
+          type: string
+          description: user's email
+        password:
+          type: string
+          description: password
+      example:
+        username: johnDoe
+        firstName: John
+        lastName: Doe
+        role: Student
+        email: johndoe@gmail.com
+        password: SecretPassword#!
+    Flashcard:
+      type: object
+      required:
+        - question
+        - answer
+        - createdBy
+      properties:
+        question:
+          type: string
+          description: The question for the flashcard
+        answer:
+          type: string
+          description: The answer for the flashcard
+        resources:
+          type: string
+          description: Additional resources related to the flashcard
+        hint:
+          type: string
+          description: A hint for the flashcard
+        createdBy:
+          type: string
+          description: ID of the user who created the flashcard
+      example:
+        question: "What is the capital of France?"
+        answer: "Paris"
+        resources: "https://en.wikipedia.org/wiki/Paris"
+        hint: "Think about famous landmarks."
+        createdBy: "user123"
+tags:
+  - name: Users
+    description: The Users managing API
+  - name: Flashcards
+    description: The Flashcards API
