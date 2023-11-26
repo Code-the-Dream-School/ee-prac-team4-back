@@ -64,7 +64,7 @@ const register = async (req, res) => {
             firstName: newUser.firstName,
             lastName: newUser.lastName,
             role: newUser.role 
-        }, token });
+        }, userId:newUser._id, token });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -114,8 +114,7 @@ const login = async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 role: user.role
-            }, 
-        token });
+            }, userId:user._id, token });
 
     } catch (error) {
         console.error(error);
