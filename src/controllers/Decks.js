@@ -1,4 +1,5 @@
 const Flashcard = require('../models/Flashcard');
+const User = require('../models/User');
 const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
 
@@ -33,6 +34,8 @@ const getUserDecks = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
+    const user = await User.getById(req.user.userId);
+
     try {
         const offset = (page -1) * limit;
         const totalDecks = await Deck.countDocuments({ createdBy: req.user.userId });
@@ -40,6 +43,12 @@ const getUserDecks = async (req, res) => {
             .sort('createdAt')
             .skip(offset)
             .limit(limit);
+
+            // this is a decorator
+            const usersFavorites = user.favorite_decks;
+            for (let deck in decks) {
+                deck.isFavorite = usersFavorites.contain(deck.id)
+            }
 
         res.status(StatusCodes.OK).json({
             decks,

@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Cannot be blank'],
     },
+    favorite_decks: {
+        type: [mongoose.Types.ObjectId],
+        ref: 'Deck',
+    }
 });
 
 module.exports = mongoose.model('User', userSchema);
