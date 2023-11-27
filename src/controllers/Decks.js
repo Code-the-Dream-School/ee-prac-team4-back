@@ -1,5 +1,5 @@
 const Flashcard = require('../models/Flashcard');
-const User = require('../models/User');
+const User = require('../controllers/User');
 const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
 
@@ -46,8 +46,8 @@ const getUserDecks = async (req, res) => {
 
             // this is a decorator
             const usersFavorites = user.favorite_decks;
-            for (let deck in decks) {
-                deck.isFavorite = usersFavorites.contain(deck.id)
+            for (let deck of decks) {
+                deck.isFavorite = usersFavorites.includes(deck._id);
             }
 
         res.status(StatusCodes.OK).json({

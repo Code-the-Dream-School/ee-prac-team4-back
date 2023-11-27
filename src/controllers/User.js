@@ -10,7 +10,11 @@ const getById = async (req, res) => {
         // extract userId from the route params
         const userId = req.params.id;
 
-        // fetch the user by Id
+        // check if userId is defined
+        if (!userId) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+        // fetch the user by id
         const user = await User.findById(userId);
 
         // check if the user exists
