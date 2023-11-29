@@ -54,6 +54,9 @@ paths:
               token:
                 type: string
                 description: JWT token for authentication
+              expiresIn:
+                type: string
+                description: JWT token expiration time in milliseconds
         401:
           description: Invalid email or password
         500:
