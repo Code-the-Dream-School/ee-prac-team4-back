@@ -57,7 +57,21 @@ const register = async (req, res) => {
         // generate a JWT token for the newly registered user
         const token = createJWT(newUser);
 
-        res.status(StatusCodes.CREATED).json({ user: { username: newUser.username }, userId: newUser._id, token });
+        // extract the expiration time from the token
+        const { exp } = jwt.decode(token);
+
+        res.status(StatusCodes.CREATED).json({ user: { 
+            username: newUser.username,
+            createdBy: newUser.createdBy,
+            email: newUser.email,
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            role: newUser.role 
+        }, 
+            userId:newUser._id, 
+            token, 
+            expiresIn: exp * 1000,  // converts the expiration time to milliseconds
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -98,8 +112,23 @@ const login = async (req, res) => {
             })
         );
 
+        // extract the expiration time from the token
+        const { exp } = jwt.decode(token);
+
         // Send the JWT token in the response
-        res.status(200).json({ user: { username: user.username }, userId: user._id, token });
+        res.status(200).json({ 
+            user: { 
+                username: user.username,
+                createdBy: user.createdBy,
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role
+            }, 
+                userId:user._id, 
+                token,
+                expiresIn: exp * 1000,
+            });
 
     } catch (error) {
         console.error(error);
