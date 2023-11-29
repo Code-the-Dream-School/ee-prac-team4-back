@@ -16,14 +16,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              type: object
+              properties:
+                user:
+                  $ref: "#/components/schemas/User"
+                userId:
+                  type: string
+                token:
+                  type: string
+                  description: JWT token for authentication
+                expiresIn:
+                  type: string
+                  description: JWT token expiration time in milliseconds
       responses:
         200:
           description: The user was successfully created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+                  userId:
+                    type: string
+                  token:
+                    type: string
+                    description: JWT token for authentication
+                  expiresIn:
+                    type: string
+                    description: JWT token expiration time in milliseconds
         500:
           description: Some server error
 
