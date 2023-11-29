@@ -26,7 +26,7 @@ paths:
                   type: string
                   description: JWT token for authentication
                 expiresIn:
-                  type: string
+                  type: integer
                   description: JWT token expiration time in milliseconds
       responses:
         200:
@@ -44,11 +44,10 @@ paths:
                     type: string
                     description: JWT token for authentication
                   expiresIn:
-                    type: string
+                    type: integer
                     description: JWT token expiration time in milliseconds
         500:
           description: Some server error
-
   /api/v1/user/login:
     post:
       summary: User login
@@ -520,15 +519,18 @@ components:
     User:
       type: object
       required: -username
+        -email
         -firstName
         -lastName
         -role
-        -email
         -password
       properties:
         username:
           type: string
           description: username
+        email:
+          type: string
+          description: user's email
         firstName:
           type: string
           description: first name of the user
@@ -538,18 +540,15 @@ components:
         role:
           type: string
           description: choose from available options of Mentor, Student, or Apprentice
-        email:
-          type: string
-          description: user's email
         password:
           type: string
           description: password
       example:
         username: johnDoe
+        email: johndoe@gmail.com
         firstName: John
         lastName: Doe
         role: Student
-        email: johndoe@gmail.com
         password: SecretPassword#!
     Flashcard:
       type: object
