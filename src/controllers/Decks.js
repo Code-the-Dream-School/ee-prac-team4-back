@@ -28,6 +28,30 @@ const getAllDecks = async (req, res) => {
     }
 };
 
+// get deck by deckId
+const getDeckByDeckId = async (req, res) => {
+    const {
+        // user: { userId },
+        params: { id: deckId }
+    } = req;
+
+    try {
+        const deck = await Deck.findOne({
+            _id: deckId
+        });
+
+        if (!deck) {
+            return res.status(StatusCodes.NOT_FOUND).json({ msg: `No deck with id ${deckId}` })
+        }
+
+        res.status(StatusCodes.OK).json({ deck });
+
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error'});
+    }
+}
+
 // get all user decks
 const getUserDecks = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -155,6 +179,7 @@ module.exports = {
     getAllDecks,
     getUserDecks,
     getDeck,
+    getDeckByDeckId,
     createDeck,
     updateDeck,
     deleteDeck

@@ -4,6 +4,7 @@ const router = express.Router();
 const {
     getUserDecks,
     getDeck,
+    getDeckByDeckId,
     createDeck,
     updateDeck,
     deleteDeck
