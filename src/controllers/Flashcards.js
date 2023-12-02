@@ -55,8 +55,7 @@ const getUserFlashcards = async (req, res) => {
 // (1) get detailed deck information along with flashcards 
 const getDeckWithFlashcards = async (req, res) => {
     try {
-        const deckId = req.params.deckId;
-        console.log('Deck ID:', deckId); 
+        const deckId = req.params.deckId; 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
@@ -66,8 +65,6 @@ const getDeckWithFlashcards = async (req, res) => {
                 path: 'flashcards',
                 options: { skip, limit },
             });
-
-            console.log('Deck with Flashcards:', deck);
 
         if (!deck) {
             return res.status(StatusCodes.NOT_FOUND).json({ msg: 'Deck not found' });
@@ -81,7 +78,7 @@ const getDeckWithFlashcards = async (req, res) => {
     }
 };
 
-// (2) get the flashcards that appertain to a specific deck (with no detailed information about each flashcard)
+// (2) get the flashcards that appertain to a specific deck - not used for the moment (with no detailed information about each flashcard)
 const getFlashcardsForDeck = async (req, res) => {
     try {
         req.body.createdBy = req.user.userId;
@@ -131,9 +128,12 @@ const createFlashcard = async (req, res) => {
     try {
         req.body.createdBy = req.user.userId;
 
-        console.log('Request Body:', req.body);
-
         const flashcard = await Flashcard.create(req.body);
+        const deckId = req.body.deck; 
+
+        const updatedDeck = await Deck.findByIdAndUpdate(deckId, {
+            $push: { flashcards: flashcard._id },
+        }, { new: true }); 
         
         res.status(StatusCodes.CREATED).json({ flashcard });
     } catch (error) {
