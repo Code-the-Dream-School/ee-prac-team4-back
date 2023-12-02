@@ -9,8 +9,8 @@ const getAllDecks = async (req, res) => {
 
     try {
         const offset = (page -1) * limit;
-        const totalDecks = await Deck.countDocuments({});
-        const decks = await Deck.find({})
+        const totalDecks = await Deck.countDocuments({ isPublic: true });
+        const decks = await Deck.find({ isPublic: true })
             .sort('createdAt')
             .skip(offset)
             .limit(limit);
@@ -28,37 +28,13 @@ const getAllDecks = async (req, res) => {
     }
 };
 
-// get deck by deckId
-const getDeckByDeckId = async (req, res) => {
-    const {
-        // user: { userId },
-        params: { id: deckId }
-    } = req;
-
-    try {
-        const deck = await Deck.findOne({
-            _id: deckId
-        });
-
-        if (!deck) {
-            return res.status(StatusCodes.NOT_FOUND).json({ msg: `No deck with id ${deckId}` })
-        }
-
-        res.status(StatusCodes.OK).json({ deck });
-
-    } catch (error) {
-        console.error(error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error'});
-    }
-}
-
 // get all user decks
 const getUserDecks = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
     try {
-        const offset = (page -1) * limit;
+        const offset = (page - 1) * limit;
         const totalDecks = await Deck.countDocuments({ createdBy: req.user.userId });
         const decks = await Deck.find({ createdBy: req.user.userId })
             .sort('createdAt')
@@ -179,7 +155,6 @@ module.exports = {
     getAllDecks,
     getUserDecks,
     getDeck,
-    getDeckByDeckId,
     createDeck,
     updateDeck,
     deleteDeck

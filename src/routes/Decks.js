@@ -4,10 +4,9 @@ const router = express.Router();
 const {
     getUserDecks,
     getDeck,
-    getDeckByDeckId,
     createDeck,
     updateDeck,
-    deleteDeck
+    deleteDeck,
 } = require('../controllers/Decks');
 
 router.route('/').post(createDeck).get(getUserDecks);

@@ -56,7 +56,18 @@ const getUserFlashcards = async (req, res) => {
 const getDeckWithFlashcards = async (req, res) => {
     try {
         const deckId = req.params.deckId;
-        const deck = await Deck.findById(deckId).populate('flashcards');
+        console.log('Deck ID:', deckId); 
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const deck = await Deck.findById(deckId)
+            .populate({
+                path: 'flashcards',
+                options: { skip, limit },
+            });
+
+            console.log('Deck with Flashcards:', deck);
 
         if (!deck) {
             return res.status(StatusCodes.NOT_FOUND).json({ msg: 'Deck not found' });
@@ -70,11 +81,24 @@ const getDeckWithFlashcards = async (req, res) => {
     }
 };
 
-// (2) get the flashcards that appertain to a specific deck 
+// (2) get the flashcards that appertain to a specific deck (with no detailed information about each flashcard)
 const getFlashcardsForDeck = async (req, res) => {
-    req.body.createdBy = req.user.userId;
-    const flashcards = await Flashcard.find({ createdBy: req.user.userId, deck: req.id }).sort('createdAt');
-    res.status(StatusCodes.CREATED).json({ flashcards, count: flashcards.length });
+    try {
+        req.body.createdBy = req.user.userId;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const flashcards = await Flashcard.find({ createdBy: req.user.userId, deck: req.params.id })
+            .sort('createdAt')
+            .skip(skip)
+            .limit(limit);
+
+        res.status(StatusCodes.CREATED).json({ flashcards, count: flashcards.length });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' });
+    }
 };
 
 // get one flashcard
@@ -104,10 +128,18 @@ const getFlashcard = async (req, res) => {
 
 // create flashcard according to the schema
 const createFlashcard = async (req, res) => {
+    try {
+        req.body.createdBy = req.user.userId;
 
-    req.body.createdBy = req.user.userId;
-    const flashcard = await Flashcard.create(req.body);
-    res.status(StatusCodes.CREATED).json({ flashcard });
+        console.log('Request Body:', req.body);
+
+        const flashcard = await Flashcard.create(req.body);
+        
+        res.status(StatusCodes.CREATED).json({ flashcard });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' });
+    }    
 };
 
 // update flashcard
