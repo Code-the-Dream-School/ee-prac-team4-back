@@ -109,6 +109,7 @@ const login = async (req, res) => {
                 sameSite: 'strict',
                 maxAge: 3600,
                 path: '/',
+                credentials: true,
             })
         );
 
