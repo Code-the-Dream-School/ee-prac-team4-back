@@ -108,8 +108,7 @@ const login = async (req, res) => {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 3600,
-                path: '/',
-                credentials: true,
+                path: '/'
             })
         );
 
