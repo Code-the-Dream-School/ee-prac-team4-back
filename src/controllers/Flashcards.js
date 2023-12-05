@@ -1,6 +1,8 @@
 const Flashcard = require('../models/Flashcard');
+const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
 
+// GET all flashcards for any unauthenticated user
 const getAllFlashcards = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -25,6 +27,7 @@ const getAllFlashcards = async (req, res) => {
     }
 };
 
+// GET the flashcards of a specific user (for a logged in user)
 const getUserFlashcards = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -49,6 +52,32 @@ const getUserFlashcards = async (req, res) => {
     }
 };
 
+// (1) get detailed deck information along with flashcards 
+const getDeckWithFlashcards = async (req, res) => {
+    try {
+        const deckId = req.params.deckId;
+        const deck = await Deck.findById(deckId).populate('flashcards');
+
+        if (!deck) {
+            return res.status(StatusCodes.NOT_FOUND).json({ msg: 'Deck not found' });
+        }
+
+        res.status(StatusCodes.OK).json({ deck });
+
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' })
+    }
+};
+
+// (2) get the flashcards that appertain to a specific deck 
+const getFlashcardsForDeck = async (req, res) => {
+    req.body.createdBy = req.user.userId;
+    const flashcards = await Flashcard.find({ createdBy: req.user.userId, deck: req.id }).sort('createdAt');
+    res.status(StatusCodes.CREATED).json({ flashcards, count: flashcards.length });
+};
+
+// get one flashcard
 const getFlashcard = async (req, res) => {
     const { 
         user: { userId }, 
@@ -73,6 +102,7 @@ const getFlashcard = async (req, res) => {
     
 };
 
+// create flashcard according to the schema
 const createFlashcard = async (req, res) => {
 
     req.body.createdBy = req.user.userId;
@@ -80,25 +110,30 @@ const createFlashcard = async (req, res) => {
     res.status(StatusCodes.CREATED).json({ flashcard });
 };
 
+// update flashcard
 const updateFlashcard = async (req, res) => {
     const {
-        body: { topic, question, answer, createdBy },
+        body: { question, answer, resources, hint, createdBy },
         user: { userId },
         params: { id: flashcardId }
     } = req;
 
     const updatedFields = {};
 
-    if (topic != undefined) {
-        updatedFields.topic = topic;
-    }
-
-    if (question != undefined) {
+    if (question !== undefined) {
         updatedFields.question = question;
     }
 
-    if (answer != undefined) {
+    if (answer !== undefined) {
         updatedFields.answer = answer;
+    }
+
+    if (resources !== undefined) {
+        updatedFields.resources = resources;
+    }
+
+    if (hint !== undefined) {
+        updatedFields.hint = hint;
     }
 
     if (Object.keys(updatedFields).length === 0) {
@@ -118,6 +153,7 @@ const updateFlashcard = async (req, res) => {
     res.status(StatusCodes.OK).json({ flashcard });
 }
 
+// delete flashcard
 const deleteFlashcard = async (req, res) => {
     const {
         user: { userId },
@@ -130,16 +166,18 @@ const deleteFlashcard = async (req, res) => {
 
     if(!flashcard) {
         return res.status(400).json({ msg: `No flashcard with id ${flashcardId}` });
-    }
+    };
 
-    res.status(StatusCodes.OK).json({ msg: "Flashcard deleted" })
+    res.status(StatusCodes.OK).json({ msg: "Flashcard deleted" });
 };
 
 module.exports = {
     getAllFlashcards,
     getUserFlashcards,
+    getFlashcardsForDeck,
+    getDeckWithFlashcards,
     getFlashcard,
     createFlashcard,
     updateFlashcard,
-    deleteFlashcard
+    deleteFlashcard,
 }
