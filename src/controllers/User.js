@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Deck = require('../models/Deck');
 const { createJWT } = require('./auth');
 const jwt = require('jsonwebtoken');
 const { StatusCodes } = require('http-status-codes');
@@ -126,6 +127,33 @@ const login = async (req, res) => {
     }
 };
 
+// getFavoriteDecks
+const getFavoriteDecks = async (req, res) => {
+    try {
+        const userId = req.params.id; 
+
+        if (!userId) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid user ID' });
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+        }
+
+        const favoriteDeckIds = user.favorite_decks;
+
+        const favoriteDecks = await Deck.find({ _id: { $in: favoriteDeckIds } });
+
+        res.status(StatusCodes.OK).json({ favoriteDecks });
+
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+    }
+};
+
 const logout = async (req, res) => {
     return res
         .clearCookie('token')
@@ -133,4 +161,4 @@ const logout = async (req, res) => {
         .json({ msg: 'Successfully logged out' })
 }
 
-module.exports = { getById, login, register, logout };
+module.exports = { getById, login, register, getFavoriteDecks, logout };
