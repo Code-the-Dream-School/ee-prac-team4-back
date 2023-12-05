@@ -65,7 +65,7 @@ const getResources = async (req, res) => {
             return res.status(StatusCodes.NOT_FOUND).json({ msg: `No Resources with id ${ResourcesId}` });
         }
     
-        res.status(StatusCodes.OK).json({ resources });
+        res.status(StatusCodes.OK).json({ resource });
         
     } catch (error) {
         console.error(error);
@@ -83,7 +83,7 @@ const createResources = async (req, res) => {
 
 const updateResources = async (req, res) => {
     const {
-        body: { topic, question, answer, createdBy },
+        body: { title, topic, subtopic, type, link, createdBy },
         user: { userId },
         params: { id: ResourcesId }
     } = req;
@@ -133,11 +133,11 @@ const deleteResources = async (req, res) => {
         params: { id: ResourcesId }
     } = req;
 
-    const Resources = await Resources.findOneAndDelete(
+    const Resource = await Resource.findOneAndDelete(
         { _id: ResourcesId, createdBy: userId }
     );
 
-    if(!Resources) {
+    if(!Resource) {
         return res.status(400).json({ msg: `No Resources with id ${ResourcesId}` });
     }
 

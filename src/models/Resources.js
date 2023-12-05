@@ -26,6 +26,12 @@ const resourceSchema = new mongoose.Schema({
     link: {
         type: String,
         required: [true, 'Cannot be blank']
+    },
+
+    createdBy : {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: [true],
     }
 }, );
 
