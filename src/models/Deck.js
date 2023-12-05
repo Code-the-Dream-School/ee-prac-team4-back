@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { arrayLimit } = require('../utils/validators'); 
 
 const deckSchema = new mongoose.Schema({
     topic: {
@@ -20,8 +21,11 @@ const deckSchema = new mongoose.Schema({
         required: true,
     },
     flashcards: [{
-        type: mongoose.Types.ObjectId,
-        ref: 'Flashcard',
+        type: [{
+            type: mongoose.Types.ObjectId,
+            ref: 'Flashcard',
+        }],
+        validate: [arrayLimit, `{PATH} exceeds the limit of 50 flashcards`],
     }],
 }, { timestamps: true });
 
