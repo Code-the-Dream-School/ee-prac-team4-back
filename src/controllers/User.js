@@ -65,8 +65,8 @@ const register = async (req, res) => {
         const { exp } = jwt.decode(token);
 
         res.status(StatusCodes.CREATED).json({ user: { 
-            createdBy: newUser.createdBy,
             username: newUser.username,
+            createdBy: newUser.createdBy,
             email: newUser.email,
             firstName: newUser.firstName,
             lastName: newUser.lastName,
