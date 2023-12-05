@@ -10,13 +10,13 @@ const userSchema = new mongoose.Schema({
     },
     firstName: {
         type: String,
-        required: [true, 'Cannot be blank'],
+        required: [false, 'Cannot be blank'],
         match: [/^[a-zA-Z0-9]+$/, 'Username is invalid'],
         maxlength: 50,
     },
     lastName: {
         type: String,
-        required: [true, 'Cannot be blank'],
+        required: [false, 'Cannot be blank'],
         match: [/^[a-zA-Z0-9]+$/, 'Username is invalid'],
         maxlength: 50,
     },
