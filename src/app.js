@@ -17,7 +17,7 @@ const allUnauthDecksRouter = require('./routes/decksAllUnauth');
 
 // middleware
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.FLASHCARDS_API_BASE_URL,
     credentials: true,
 }));
 app.use(express.json());
