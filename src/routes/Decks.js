@@ -3,13 +3,13 @@ const router = express.Router();
 
 const {
     getUserDecks,
-    getDeck,
     createDeck,
     updateDeck,
     deleteDeck,
+    getDeckWithFlashcards,
 } = require('../controllers/Decks');
 
 router.route('/').post(createDeck).get(getUserDecks);
-router.route('/:id').get(getDeck).delete(deleteDeck).patch(updateDeck);
+router.route('/:id').get(getDeckWithFlashcards).delete(deleteDeck).patch(updateDeck);
 
 module.exports = router;
