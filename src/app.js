@@ -5,6 +5,11 @@ const favicon = require('express-favicon');
 const logger = require('morgan');
 const cookieParser = require("cookie-parser");
 
+// swagger
+const swaggerUI = require('swagger-ui-express')
+const YAML = require('yamljs')
+const swaggerDocument = YAML.load('./swagger.yaml')
+
 const authenticateUser = require('./middleware/authentication');
 
 // routers
@@ -34,5 +39,9 @@ app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
 app.use('/api/v1/deck', authenticateUser, decksRouter);
 app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
 app.use('/api/v1/decksAll', allUnauthDecksRouter);
+
+// swagger link
+app.use('/api/v1/api-docs', swaggerUI.serve);
+app.get('/api/v1/api-docs', swaggerUI.setup(swaggerDocument));
 
 module.exports = app;

@@ -32,7 +32,7 @@ const getById = async (req, res) => {
 };
 
 const register = async (req, res) => {
-    const { username, firstName, lastName, role, email, password } = req.body;
+    const { username, email, firstName, lastName, role, password } = req.body;
 
     try {
         // check if email already exists
@@ -42,6 +42,10 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'User with this email already exists' });
         }
 
+        if (!password) {
+            return res.status(400).json({ message: 'Password is required' });
+        }
+
         // hash the password before saving it to the database
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -49,10 +53,10 @@ const register = async (req, res) => {
         // create a new user with the hashed password
         const newUser = new User({
             username,
+            email,
             firstName,
             lastName,
             role,
-            email,
             password: hashedPassword,
         });
 
