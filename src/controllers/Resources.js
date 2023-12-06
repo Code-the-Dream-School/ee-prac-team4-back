@@ -133,11 +133,11 @@ const deleteResources = async (req, res) => {
         params: { id: ResourcesId }
     } = req;
 
-    const Resource = await Resource.findOneAndDelete(
+    const resource = await Resource.findOneAndDelete(
         { _id: ResourcesId, createdBy: userId }
     );
 
-    if(!Resource) {
+    if(!resource) {
         return res.status(400).json({ msg: `No Resources with id ${ResourcesId}` });
     }
 
