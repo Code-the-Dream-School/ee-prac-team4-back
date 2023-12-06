@@ -7,6 +7,11 @@ const favicon = require('express-favicon');
 const logger = require('morgan');
 const cookieParser = require("cookie-parser");
 
+// swagger
+const swaggerUI = require('swagger-ui-express')
+const YAML = require('yamljs')
+const swaggerDocument = YAML.load('./swagger.yaml')
+
 const authenticateUser = require('./middleware/authentication');
 
 const mainRouter = require('./routes/mainRouter.js');
@@ -19,13 +24,14 @@ const errorHandlerMiddleware = require('./middleware/error-handler');
 const notFoundMiddleware = require('./middleware/not-found');
 
 // middleware
-app.use(cors({ 
+app.use(cors({
     origin: process.env.FLASHCARDS_API_BASE_URL,
-    credentials: true,}));
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
-app.use(express.static('public'))
+app.use(express.static('public'));
 app.use(favicon(__dirname + '/public/favicon.icon'));
 app.use(cookieParser());
 
@@ -37,6 +43,10 @@ app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
 app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
 app.use('/api/v1/resources', authenticateUser, resourcesRouter);
 app.use('/api/v1/unathresources', unathorizedResourceRouter);
+
+// swagger link
+app.use('/api/v1/api-docs', swaggerUI.serve);
+app.get('/api/v1/api-docs', swaggerUI.setup(swaggerDocument));
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 

@@ -1,4 +1,5 @@
 const Flashcard = require('../models/Flashcard');
+const User = require('../controllers/User');
 const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
 
@@ -9,8 +10,8 @@ const getAllDecks = async (req, res) => {
 
     try {
         const offset = (page -1) * limit;
-        const totalDecks = await Deck.countDocuments({});
-        const decks = await Deck.find({})
+        const totalDecks = await Deck.countDocuments({ isPublic: true });
+        const decks = await Deck.find({ isPublic: true })
             .sort('createdAt')
             .skip(offset)
             .limit(limit);
@@ -33,13 +34,21 @@ const getUserDecks = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
+    const user = await User.getById(req.user.userId);
+
     try {
-        const offset = (page -1) * limit;
+        const offset = (page - 1) * limit;
         const totalDecks = await Deck.countDocuments({ createdBy: req.user.userId });
         const decks = await Deck.find({ createdBy: req.user.userId })
             .sort('createdAt')
             .skip(offset)
             .limit(limit);
+
+            // this is a decorator
+            const usersFavorites = user.favorite_decks;
+            for (let deck of decks) {
+                deck.isFavorite = usersFavorites.includes(deck._id);
+            }
 
         res.status(StatusCodes.OK).json({
             decks,
@@ -54,27 +63,58 @@ const getUserDecks = async (req, res) => {
     }
 };
 
-// get one deck for an auth user
-const getDeck = async (req, res) => {
-    const {
-        user: { userId },
-        params: { id: deckId }
-    } = req;
-
+// get detailed deck information along with flashcards 
+const getDeckWithFlashcards = async (req, res) => {
+    console.log("req params is:", req.params)
     try {
-        const deck = await Deck.findOne({
-            _id: deckId, createdBy: userId
-        });
+        const deckId = req.params.id; 
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const deck = await Deck.findById(deckId)
+            .populate({
+                path: 'flashcards',
+                options: { skip, limit },
+            });
 
         if (!deck) {
-            return res.status(StatusCodes.NOT_FOUND).json({ msg: `No deck with id ${deckId}` })
+            return res.status(StatusCodes.NOT_FOUND).json({ msg: `No deck with id ${deckId}` });
         }
+        
+        // Flatten the array of arrays of flashcard IDs
+        const flatFlashcardIds = deck.flashcards.flat();
 
-        res.status(StatusCodes.OK).json({ deck });
+        // Map over the flat array of flashcard IDs to fetch the detailed flashcards
+        const detailedFlashcards = await Promise.all(flatFlashcardIds.map(async flashcardId => {
+            const detailedFlashcard = await Flashcard.findById(flashcardId);
+            return {
+                _id: detailedFlashcard._id,
+                question: detailedFlashcard.question,
+                answer: detailedFlashcard.answer,
+                resources: detailedFlashcard.resources,
+                hint: detailedFlashcard.hint,
+                deck: detailedFlashcard.deck,
+            };
+        }));
+
+        res.status(StatusCodes.OK).json({
+            deck: {
+                _id: deck._id,
+                topic: deck.topic,
+                subtopic: deck.subtopic,
+                isPublic: deck.isPublic,
+                createdBy: deck.createdBy,
+                flashcards: detailedFlashcards,
+                createdAt: deck.createdAt,
+                updatedAt: deck.updatedAt,
+                __v: deck.__v,
+            }
+        });
 
     } catch (error) {
         console.error(error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error'});
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' })
     }
 };
 
@@ -154,7 +194,7 @@ const deleteDeck = async (req, res) => {
 module.exports = {
     getAllDecks,
     getUserDecks,
-    getDeck,
+    getDeckWithFlashcards,
     createDeck,
     updateDeck,
     deleteDeck
