@@ -64,10 +64,10 @@ const register = async (req, res) => {
         await newUser.save();
 
         // generate a JWT token for the newly registered user
-        const token = createJWT(newUser);
+        const expirationSeconds = process.env.JWT_LIFETIME;
+        const token = createJWT(newUser, expirationSeconds);
 
-        // extract the expiration time from the token
-        const { exp } = jwt.decode(token);
+        const expirationMs = expirationSeconds * 1000
 
         res.status(StatusCodes.CREATED).json({ user: { 
             username: newUser.username,
@@ -79,7 +79,7 @@ const register = async (req, res) => {
         }, 
             userId:newUser._id, 
             token, 
-            expiresIn: exp * 1000,  // converts the expiration time to milliseconds
+            expiresIn: expirationMs,
         });
     } catch (error) {
         console.error(error);
@@ -104,11 +104,8 @@ const login = async (req, res) => {
         }
 
         // Create a JWT - JSON Web Token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { // or username
-            expiresIn: process.env.JWT_LIFETIME,
-        });
-
-        req.user = { userId: user._id };
+        const expirationSec = process.env.JWT_LIFETIME
+        const token = createJWT(user, expirationSec);
 
         res.setHeader(
             'Set-Cookie',
@@ -116,13 +113,10 @@ const login = async (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 3600,
+                maxAge: expirationSec,
                 path: '/'
             })
         );
-
-        // extract the expiration time from the token
-        const { exp } = jwt.decode(token);
 
         // Send the JWT token in the response
         res.status(200).json({ 
@@ -136,7 +130,7 @@ const login = async (req, res) => {
             }, 
                 userId:user._id, 
                 token,
-                expiresIn: exp * 1000,
+                expiresIn: expirationSec * 1000,
             });
 
     } catch (error) {
