@@ -52,31 +52,6 @@ const getUserFlashcards = async (req, res) => {
     }
 };
 
-// (1) get detailed deck information along with flashcards 
-const getDeckWithFlashcards = async (req, res) => {
-    try {
-        const deckId = req.params.deckId;
-        const deck = await Deck.findById(deckId).populate('flashcards');
-
-        if (!deck) {
-            return res.status(StatusCodes.NOT_FOUND).json({ msg: 'Deck not found' });
-        }
-
-        res.status(StatusCodes.OK).json({ deck });
-
-    } catch (error) {
-        console.error(error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' })
-    }
-};
-
-// (2) get the flashcards that appertain to a specific deck 
-const getFlashcardsForDeck = async (req, res) => {
-    req.body.createdBy = req.user.userId;
-    const flashcards = await Flashcard.find({ createdBy: req.user.userId, deck: req.id }).sort('createdAt');
-    res.status(StatusCodes.CREATED).json({ flashcards, count: flashcards.length });
-};
-
 // get one flashcard
 const getFlashcard = async (req, res) => {
     const { 
@@ -104,10 +79,21 @@ const getFlashcard = async (req, res) => {
 
 // create flashcard according to the schema
 const createFlashcard = async (req, res) => {
+    try {
+        req.body.createdBy = req.user.userId;
 
-    req.body.createdBy = req.user.userId;
-    const flashcard = await Flashcard.create(req.body);
-    res.status(StatusCodes.CREATED).json({ flashcard });
+        const flashcard = await Flashcard.create(req.body);
+        const deckId = req.body.deck; 
+
+        const updatedDeck = await Deck.findByIdAndUpdate(deckId, {
+            $push: { flashcards: flashcard._id },
+        }, { new: true }); 
+        
+        res.status(StatusCodes.CREATED).json({ flashcard });
+    } catch (error) {
+        console.error(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' });
+    }    
 };
 
 // update flashcard
@@ -174,8 +160,6 @@ const deleteFlashcard = async (req, res) => {
 module.exports = {
     getAllFlashcards,
     getUserFlashcards,
-    getFlashcardsForDeck,
-    getDeckWithFlashcards,
     getFlashcard,
     createFlashcard,
     updateFlashcard,

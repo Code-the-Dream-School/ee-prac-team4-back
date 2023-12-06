@@ -6,7 +6,8 @@ const {
     getFlashcard,
     createFlashcard,
     updateFlashcard,
-    deleteFlashcard
+    deleteFlashcard,
+    getDeckWithFlashcards,
 } = require('../controllers/Flashcards');
 
 router.route('/').post(createFlashcard).get(getUserFlashcards);

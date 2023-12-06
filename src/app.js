@@ -19,12 +19,15 @@ const errorHandlerMiddleware = require('./middleware/error-handler');
 const notFoundMiddleware = require('./middleware/not-found');
 
 // middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.FLASHCARDS_API_BASE_URL,
+    credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
-app.use(express.static('public'))
-app.use(favicon(__dirname + '/public/favicon.icon'));
+app.use(express.static('public'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(cookieParser());
 
 

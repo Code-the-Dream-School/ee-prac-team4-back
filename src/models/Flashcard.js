@@ -23,7 +23,7 @@ const flashcardSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Deck',
         required: true,
-},
+    },
     createdBy: {
         type: mongoose.Types.ObjectId,
         ref: 'User',
