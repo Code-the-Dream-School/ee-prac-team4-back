@@ -2,7 +2,7 @@ const Flashcard = require('../models/Flashcard');
 const User = require('../controllers/User');
 const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
-const { getDetailedFlashcards } = require('../utils/utilFuctions')
+const { getDetailedFlashcards, getUserById } = require('../utils/utilFuctions');
 
 // get all decks by unauthenticated users
 const getAllDecks = async (req, res) => {
@@ -49,7 +49,7 @@ const getUserDecks = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
-        const user = await User.getById(req.user.userId);
+        const user = await getUserById(req.user.userId);
 
         const offset = (page - 1) * limit;
         const totalDecks = await Deck.countDocuments({ createdBy: req.user.userId });

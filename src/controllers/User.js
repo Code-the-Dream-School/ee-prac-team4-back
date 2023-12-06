@@ -6,13 +6,28 @@ const { StatusCodes } = require('http-status-codes');
 const bcrypt = require('bcryptjs');
 const cookies = require('cookie');
 
-const getById = async (userId) => {
+const getById = async (req, res) => {
     try {
+        // extract userId from the route params
+        const userId = req.params.id;
+
+        // check if userId is defined
+        if (!userId) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+        }
+        // fetch the user by id
         const user = await User.findById(userId);
-        return user;
+
+        // check if the user exists
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        // if user exists
+        res.status(200).json(user);
+
     } catch (error) {
-        console.error(error);
-        return null;
+        console.log(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 

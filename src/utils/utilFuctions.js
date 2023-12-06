@@ -1,4 +1,5 @@
 const Flashcard = require('../models/Flashcard');
+const User = require('../models/User');
 
 // function to get detailed flashcards
 const getDetailedFlashcards = async (flashcardIds) => {
@@ -19,4 +20,14 @@ const getDetailedFlashcards = async (flashcardIds) => {
     return detailedFlashcards;
 };
 
-module.exports = { getDetailedFlashcards };
+const getUserById = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        return user || {};
+    } catch (error) {
+        console.error('Error finding user:', error);
+        return {};
+    }
+};
+
+module.exports = { getDetailedFlashcards, getUserById };
