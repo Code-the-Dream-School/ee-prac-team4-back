@@ -2,6 +2,7 @@ const Flashcard = require('../models/Flashcard');
 const User = require('../controllers/User');
 const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
+const { getDetailedFlashcards } = require('../utils/utilFuctions')
 
 // get all decks by unauthenticated users
 const getAllDecks = async (req, res) => {
@@ -31,12 +32,17 @@ const getAllDecks = async (req, res) => {
 
 // get all user decks
 const getUserDecks = async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-
-    const user = await User.getById(req.user.userId);
 
     try {
+        if (!req.user || !req.user.userId) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid user ID' });
+        }
+        
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const user = await User.getById(req.user.userId);
+
         const offset = (page - 1) * limit;
         const totalDecks = await Deck.countDocuments({ createdBy: req.user.userId });
         const decks = await Deck.find({ createdBy: req.user.userId })
@@ -44,14 +50,25 @@ const getUserDecks = async (req, res) => {
             .skip(offset)
             .limit(limit);
 
+            // Fetch detailed flashcards for each deck
+            const decksWithDetailedFlashcards = await Promise.all(decks.map(async (deck) => {
+                const detailedFlashcards = await getDetailedFlashcards(deck.flashcards);
+    
+                // Decorate each deck with detailed flashcards
+                return {
+                    ...deck.toObject(),
+                    flashcards: detailedFlashcards,
+                };
+            }));
+
             // this is a decorator
             const usersFavorites = user.favorite_decks;
-            for (let deck of decks) {
+            for (let deck of decksWithDetailedFlashcards) {
                 deck.isFavorite = usersFavorites.includes(deck._id);
             }
 
         res.status(StatusCodes.OK).json({
-            decks,
+            decks: decksWithDetailedFlashcards,
             currentPage: page,
             totalPages: Math.ceil(totalDecks / limit),
             totalItems: totalDecks,
@@ -65,7 +82,6 @@ const getUserDecks = async (req, res) => {
 
 // get detailed deck information along with flashcards 
 const getDeckWithFlashcards = async (req, res) => {
-    console.log("req params is:", req.params)
     try {
         const deckId = req.params.id; 
         const page = parseInt(req.query.page) || 1;
