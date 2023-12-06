@@ -67,7 +67,7 @@ const register = async (req, res) => {
         const expirationSeconds = process.env.JWT_LIFETIME;
         const token = createJWT(newUser, expirationSeconds);
 
-        const expirationMs = expirationSeconds * 1000
+        const expirationMs = expirationSeconds * 1000;
 
         res.status(StatusCodes.CREATED).json({ user: { 
             username: newUser.username,
