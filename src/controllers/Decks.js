@@ -17,8 +17,16 @@ const getAllDecks = async (req, res) => {
             .skip(offset)
             .limit(limit);
 
+            const decksWithDetailedFlashcards = await Promise.all(decks.map(async (deck) => {
+                const detailedFlashcards = await getDetailedFlashcards(deck.flashcards);
+                return {
+                    ...deck.toObject(),
+                    flashcards: detailedFlashcards,
+                };
+            }));
+    
         res.status(StatusCodes.OK).json({
-            decks,
+            decks: decksWithDetailedFlashcards,
             currentPage: page,
             totalPages: Math.ceil(totalDecks / limit),
             totalItems: totalDecks,
@@ -97,22 +105,8 @@ const getDeckWithFlashcards = async (req, res) => {
         if (!deck) {
             return res.status(StatusCodes.NOT_FOUND).json({ msg: `No deck with id ${deckId}` });
         }
-        
-        // Flatten the array of arrays of flashcard IDs
-        const flatFlashcardIds = deck.flashcards.flat();
 
-        // Map over the flat array of flashcard IDs to fetch the detailed flashcards
-        const detailedFlashcards = await Promise.all(flatFlashcardIds.map(async flashcardId => {
-            const detailedFlashcard = await Flashcard.findById(flashcardId);
-            return {
-                _id: detailedFlashcard._id,
-                question: detailedFlashcard.question,
-                answer: detailedFlashcard.answer,
-                resources: detailedFlashcard.resources,
-                hint: detailedFlashcard.hint,
-                deck: detailedFlashcard.deck,
-            };
-        }));
+        const detailedFlashcards = await getDetailedFlashcards(deck.flashcards);
 
         res.status(StatusCodes.OK).json({
             deck: {
