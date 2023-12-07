@@ -8,6 +8,10 @@ const cookies = require('cookie');
 
 const getById = async (req, res) => {
     try {
+
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
         // extract userId from the route params
         const userId = req.params.id;
 
@@ -40,7 +44,7 @@ const register = async (req, res) => {
         if (!allowedRoles.includes(req.body.role)) {
             return res.status(400).json({ error: 'Invalid role. Choose from: Student, Mentor, Apprentice, Admin' });
         }
-        
+
         // check if email already exists
         const existingUser = await User.findOne({ email });
 

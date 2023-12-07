@@ -91,9 +91,16 @@ const createFlashcard = async (req, res) => {
         
         res.status(StatusCodes.CREATED).json({ flashcard });
     } catch (error) {
+        if (error.name === 'ValidationError') {
+            // Handle validation errors
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
+        } else if (error.name === 'CastError' && error.path === 'deck') {
+            // Handle CastError related to the 'deck' field
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: 'Invalid deck ID. Please provide a valid ObjectId.' });
+        }
         console.error(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: 'Internal server error' });
-    }    
+    }   
 };
 
 // update flashcard
