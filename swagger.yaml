@@ -374,6 +374,21 @@ paths:
                     type: integer
                   totalItems:
                     type: integer
+                example:
+                  decks:
+                    - _id: "6571495a5bd47d1a79e44a14"
+                      topic: "string"
+                      subtopic: "string"
+                      isPublic: true
+                      createdBy: "6549d50432f9a3ce14a87f61"
+                      flashcards: []
+                      createdAt: "2023-12-07T04:26:02.391Z"
+                      updatedAt: "2023-12-07T04:26:02.391Z"
+                      __v: 0
+                      isFavorite: false
+                  currentPage: 1
+                  totalPages: 1
+                  totalItems: 1
         "500":
           description: Internal server error
           content:
@@ -427,7 +442,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DeckUpdate"
+              type: object
+              properties:
+                topic:
+                  type: string
+                  description: The updated topic for the deck
+                subtopic:
+                  type: string
+                  description: The updated subtopic for the deck
+                isPublic:
+                  type: boolean
+                  description: The updated visibility status of the deck
+                flashcards:
+                  type: array
+                  items:
+                    type: string
+                  description: An array of flashcard IDs to associate with the deck
+              example:
+                topic: "Updated Topic"
+                subtopic: "Updated Subtopic"
+                isPublic: true
+                flashcards:
+                  - "65708ef68a3a1126502dbab7"
+                  - "657154f878388caa84d94ffb"
       security:
         - bearerAuth: []
       responses:
@@ -437,6 +474,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Deck"
+              example:
+                deck:
+                  _id: "657154f878388caa84d94ffb"
+                  topic: "deck3--update"
+                  subtopic: "sub"
+                  isPublic: false
+                  createdBy: "65708ef68a3a1126502dbab7"
+                  flashcards: []
+                  createdAt: "2023-12-07T05:15:36.447Z"
+                  updatedAt: "2023-12-07T05:16:30.601Z"
+                  __v: 0
         "400":
           description: Bad request
           content:

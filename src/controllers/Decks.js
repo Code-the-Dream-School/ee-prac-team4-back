@@ -1,8 +1,7 @@
 const Flashcard = require('../models/Flashcard');
-const User = require('../controllers/User');
 const Deck = require('../models/Deck');
 const { StatusCodes } = require('http-status-codes');
-const { getDetailedFlashcards, getUserById } = require('../utils/utilFuctions');
+const { getDetailedFlashcards, getUserById } = require('../utils/utilFunctions');
 
 // get all decks by unauthenticated users
 const getAllDecks = async (req, res) => {
@@ -82,7 +81,6 @@ const getUserDecks = async (req, res) => {
 
 // get detailed deck information along with flashcards 
 const getDeckWithFlashcards = async (req, res) => {
-    console.log("req params is:", req.params)
     try {
         const deckId = req.params.id; 
         const page = parseInt(req.query.page) || 1;
