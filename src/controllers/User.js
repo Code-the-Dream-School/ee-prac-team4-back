@@ -33,8 +33,14 @@ const getById = async (req, res) => {
 
 const register = async (req, res) => {
     const { username, email, firstName, lastName, role, password } = req.body;
+    const allowedRoles = ['Mentor', 'Student', 'Apprentice', 'Admin'];
 
     try {
+        // validate that the role is one of the allowed values
+        if (!allowedRoles.includes(req.body.role)) {
+            return res.status(400).json({ error: 'Invalid role. Choose from: Student, Mentor, Apprentice, Admin' });
+        }
+        
         // check if email already exists
         const existingUser = await User.findOne({ email });
 
@@ -68,7 +74,7 @@ const register = async (req, res) => {
 
         // extract the expiration time from the token
         const { exp } = jwt.decode(token);
-
+        
         res.status(StatusCodes.CREATED).json({ user: { 
             username: newUser.username,
             createdBy: newUser.createdBy,

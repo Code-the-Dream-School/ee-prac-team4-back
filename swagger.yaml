@@ -17,17 +17,33 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - username
+                - email
+                - firstName
+                - lastName
+                - role
+                - password
               properties:
-                user:
-                  $ref: "#/components/schemas/User"
-                userId:
+                username:
                   type: string
-                token:
+                  description: username
+                email:
                   type: string
-                  description: JWT token for authentication
-                expiresIn:
-                  type: integer
-                  description: JWT token expiration time in milliseconds
+                  description: user's email
+                firstName:
+                  type: string
+                  description: first name of the user
+                lastName:
+                  type: string
+                  description: last name of the user
+                role:
+                  type: string
+                  description: "User role (choose from available options: student, mentor, apprentice, admin)"
+                  enum: ["student", "mentor", "apprentice", "admin"]
+                password:
+                  type: string
+                  description: password
       responses:
         200:
           description: The user was successfully created
@@ -518,12 +534,13 @@ components:
   schemas:
     User:
       type: object
-      required: -username
-        -email
-        -firstName
-        -lastName
-        -role
-        -password
+      required:
+        - username
+        - email
+        - firstName
+        - lastName
+        - role
+        - password
       properties:
         username:
           type: string
@@ -539,13 +556,14 @@ components:
           description: last name of the user
         role:
           type: string
-          description: choose from available options of Mentor, Student, or Apprentice
+          description: choose from available options of Mentor, Student, Apprentice, or Admin
+          enum: ["student", "mentor", "apprentice", "admin"]
         password:
           type: string
           description: password
       example:
-        username: johnDoe
-        email: johndoe@gmail.com
+        username: johnDoe-new
+        email: johndoe100@gmail.com
         firstName: John
         lastName: Doe
         role: Student
