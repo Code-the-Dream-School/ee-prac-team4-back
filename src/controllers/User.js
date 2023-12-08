@@ -66,8 +66,17 @@ const register = async (req, res) => {
         // generate a JWT token for the newly registered user
         const token = createJWT(newUser);
 
-        // extract the expiration time from the token
-        const { exp } = jwt.decode(token);
+        res.setHeader(
+            'Set-Cookie',
+            cookies.serialize('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 60 * 60 * 8, // 24 hours
+                path: '/',
+                secure: true,
+            })
+        );
 
         res.status(StatusCodes.CREATED).json({ user: { 
             username: newUser.username,
@@ -77,9 +86,9 @@ const register = async (req, res) => {
             lastName: newUser.lastName,
             role: newUser.role 
         }, 
-            userId:newUser._id, 
+            userId: newUser._id, 
             token, 
-            expiresIn: exp * 1000,  // converts the expiration time to milliseconds
+            expiresIn: process.env.JWT_LIFETIME, // extract the expiration time from the token
         });
     } catch (error) {
         console.error(error);
@@ -116,8 +125,9 @@ const login = async (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 3600,
-                path: '/'
+                maxAge: 60 * 60 * 8, // 24 hours
+                path: '/',
+                secure: true,
             })
         );
 
