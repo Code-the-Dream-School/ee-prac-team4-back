@@ -3,6 +3,7 @@ const User = require('../models/User');
 
 // function to get detailed flashcards
 const getDetailedFlashcards = async (flashcardIds) => {
+    // error handling for cases when no detailed flashcards are returned
     const flatFlashcardIds = flashcardIds ? flashcardIds.flat() : [];
 
     const detailedFlashcards = await Promise.all(flatFlashcardIds.map(async (flashcardId) => {
