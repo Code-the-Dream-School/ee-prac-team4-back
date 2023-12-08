@@ -1,3 +1,5 @@
+require('dotenv').config({path:'./env'})
+require("express-async-errors");
 const express = require('express');
 const app = express();
 const cors = require('cors')
@@ -12,13 +14,14 @@ const swaggerDocument = YAML.load('./swagger.yaml')
 
 const authenticateUser = require('./middleware/authentication');
 
-// routers
 const mainRouter = require('./routes/mainRouter.js');
 const userRouter = require('./routes/User.js');
 const flashcardsRouter = require('./routes/Flashcards.js');
 const allUnauthFlashcardsRouter = require('./routes/flashcardsAllUnauth.js');
 const decksRouter = require('./routes/Decks.js');
 const allUnauthDecksRouter = require('./routes/decksAllUnauth');
+const errorHandlerMiddleware = require('./middleware/error-handler');
+const notFoundMiddleware = require('./middleware/not-found');
 
 // middleware
 app.use(cors({
@@ -32,6 +35,8 @@ app.use(express.static('public'));
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(cookieParser(process.env.JWT_SECRET));
 
+
+
 // routes
 app.use('/api/v1', mainRouter);
 app.use('/api/v1/user', userRouter);
@@ -43,5 +48,8 @@ app.use('/api/v1/decksAll', allUnauthDecksRouter);
 // swagger link
 app.use('/api/v1/api-docs', swaggerUI.serve);
 app.get('/api/v1/api-docs', swaggerUI.setup(swaggerDocument));
+
+app.use(errorHandlerMiddleware);
+app.use(notFoundMiddleware);
 
 module.exports = app;
