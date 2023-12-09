@@ -18,8 +18,8 @@ const mainRouter = require('./routes/mainRouter.js');
 const userRouter = require('./routes/User.js');
 const flashcardsRouter = require('./routes/Flashcards.js');
 const allUnauthFlashcardsRouter = require('./routes/flashcardsAllUnauth.js');
-const resourcesRouter = require('./routes/Resources');
-const unathorizedResourceRouter = require('./routes/UnauthorizedResources');
+const decksRouter = require('./routes/Decks.js');
+const allUnauthDecksRouter = require('./routes/decksAllUnauth');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const notFoundMiddleware = require('./middleware/not-found');
 
@@ -32,8 +32,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));
 app.use(express.static('public'));
-app.use(favicon(__dirname + '/public/favicon.icon'));
-app.use(cookieParser());
+app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(cookieParser(process.env.JWT_SECRET));
+
 
 
 // routes
@@ -47,7 +48,8 @@ app.use('/api/v1/unathresources', unathorizedResourceRouter);
 // swagger link
 app.use('/api/v1/api-docs', swaggerUI.serve);
 app.get('/api/v1/api-docs', swaggerUI.setup(swaggerDocument));
-app.use(notFoundMiddleware);
+
 app.use(errorHandlerMiddleware);
+app.use(notFoundMiddleware);
 
 module.exports = app;
