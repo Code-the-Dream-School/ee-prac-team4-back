@@ -17,17 +17,33 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - username
+                - email
+                - firstName
+                - lastName
+                - role
+                - password
               properties:
-                user:
-                  $ref: "#/components/schemas/User"
-                userId:
+                username:
                   type: string
-                token:
+                  description: username
+                email:
                   type: string
-                  description: JWT token for authentication
-                expiresIn:
-                  type: integer
-                  description: JWT token expiration time in milliseconds
+                  description: user's email
+                firstName:
+                  type: string
+                  description: first name of the user
+                lastName:
+                  type: string
+                  description: last name of the user
+                role:
+                  type: string
+                  description: "User role (choose from available options: student, mentor, apprentice, admin)"
+                  enum: ["Student", "Mentor", "Apprentice", "Admin"]
+                password:
+                  type: string
+                  description: password
       responses:
         200:
           description: The user was successfully created
@@ -220,7 +236,7 @@ paths:
         500:
           description: Internal server error
     patch:
-      summary: Update a specific flashcard
+      summary: Partially update a flashcard
       tags: [Flashcards]
       parameters:
         - in: path
@@ -249,11 +265,8 @@ paths:
                   type: string
                   description: The updated hint
                 deck:
-                  type: object
-                  description: The deck that the flashcard is in
-                createdBy:
-                  type: object
-                  description: User's id
+                  type: string
+                  description: The updated deck ID
       responses:
         200:
           description: Flashcard updated successfully
@@ -262,7 +275,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Flashcard"
         400:
-          description: No fields to update
+          description: Bad request, check your request payload
+        404:
+          description: Flashcard not found
         500:
           description: Internal server error
   /api/v1/flashcardsAll:
@@ -311,16 +326,29 @@ paths:
             schema:
               $ref: "#/components/schemas/Deck"
       security:
-        -bearerAuth: []
+        - bearerAuth: []
       responses:
         "201":
           description: Deck created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Deck"
-        "500":
-          description: Internal server error
+                $ref: "#/components/schemas/DeckResponse"
+      examples:
+        "deck_creation_example":
+          value:
+            topic: "string"
+            subtopic: "string"
+            isPublic: true
+            createdBy: "65708ef68a3a1126502dbab7"
+            flashcards:
+              - _id: "657122779cdf62424bdcc864"
+                question: "question-new2"
+                answer: "answer1"
+                resources: "resrouces example"
+                hint: "this is the hint"
+                deck: "6571225b9cdf62424bdcc862"
+            createdBy: "65708ef68a3a1126502dbab7"
     get:
       summary: Get all decks for a user
       tags: [Decks]
@@ -352,7 +380,7 @@ paths:
                   decks:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Deck"
+                      $ref: "#/components/schemas/DeckWithDetailedFlashcards"
                   currentPage:
                     type: integer
                   totalPages:
@@ -412,7 +440,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DeckUpdate"
+              type: object
+              properties:
+                topic:
+                  type: string
+                  description: The updated topic for the deck
+                subtopic:
+                  type: string
+                  description: The updated subtopic for the deck
+                isPublic:
+                  type: boolean
+                  description: The updated visibility status of the deck
+                flashcards:
+                  type: array
+                  items:
+                    type: string
+                  description: An array of flashcard IDs to associate with the deck
+              example:
+                topic: "Updated Topic"
+                subtopic: "Updated Subtopic"
+                isPublic: true
+                flashcards:
+                  - "65708ef68a3a1126502dbab7"
+                  - "657154f878388caa84d94ffb"
       security:
         - bearerAuth: []
       responses:
@@ -422,6 +472,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Deck"
+              example:
+                deck:
+                  _id: "657154f878388caa84d94ffb"
+                  topic: "deck3--update"
+                  subtopic: "sub"
+                  isPublic: false
+                  createdBy: "65708ef68a3a1126502dbab7"
+                  flashcards: []
+                  createdAt: "2023-12-07T05:15:36.447Z"
+                  updatedAt: "2023-12-07T05:16:30.601Z"
+                  __v: 0
         "400":
           description: Bad request
           content:
@@ -518,12 +579,13 @@ components:
   schemas:
     User:
       type: object
-      required: -username
-        -email
-        -firstName
-        -lastName
-        -role
-        -password
+      required:
+        - username
+        - email
+        - firstName
+        - lastName
+        - role
+        - password
       properties:
         username:
           type: string
@@ -539,13 +601,14 @@ components:
           description: last name of the user
         role:
           type: string
-          description: choose from available options of Mentor, Student, or Apprentice
+          description: choose from available options of Mentor, Student, Apprentice, or Admin
+          enum: ["Student", "Mentor", "Apprentice", "Admin"]
         password:
           type: string
           description: password
       example:
-        username: johnDoe
-        email: johndoe@gmail.com
+        username: johnDoe-new
+        email: johndoe100@gmail.com
         firstName: John
         lastName: Doe
         role: Student
@@ -573,39 +636,87 @@ components:
         deck:
           type: object
           description: Any flashcard should be part of a deck
+          example: "654e88a264619fb725dd2bc3"
         createdBy:
           type: string
           description: ID of the user who created the flashcard
+          example: "653dc07c5983616238888ca0"
       example:
         question: "What is the capital of France?"
         answer: "Paris"
         resources: "https://en.wikipedia.org/wiki/Paris"
         hint: "Think about famous landmarks."
-        deck: "1234"
-        createdBy: "user123"
+        deck: "654e88a264619fb725dd2bc3"
+        createdBy: "653dc07c5983616238888ca0"
     Deck:
       type: object
-      required:
-        - topic
-        - createdBy
       properties:
         topic:
           type: string
-          description: Deck's topic
         subtopic:
           type: string
-          description: Deck's subtopic
         isPublic:
           type: boolean
-          description: Any deck is personal by default
         createdBy:
-          type: object
-          description: User's id
+          type: string
         flashcards:
           type: array
           items:
-            $ref: "#/components/schemas/Flashcard"
-          description: The id of the flashcards that are in this deck
+            type: string
+      example:
+        topic: "string"
+        subtopic: "string"
+        isPublic: true
+        createdBy: "65708ef68a3a1126502dbab7"
+        flashcards: []
+    DeckResponse:
+      type: object
+      properties:
+        deck:
+          $ref: "#/components/schemas/Deck"
+    DeckWithDetailedFlashcards:
+      type: object
+      properties:
+        _id:
+          type: string
+        topic:
+          type: string
+        subtopic:
+          type: string
+        isPublic:
+          type: boolean
+        createdBy:
+          type: string
+        flashcards:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailedFlashcard"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        __v:
+          type: integer
+        isFavorite:
+          type: boolean
+
+    DetailedFlashcard:
+      type: object
+      properties:
+        _id:
+          type: string
+        question:
+          type: string
+        answer:
+          type: string
+        resources:
+          type: string
+        hint:
+          type: string
+        deck:
+          type: string
+        createdBy:
+          type: string
 securitySchemes:
   bearerAuth:
     type: http
