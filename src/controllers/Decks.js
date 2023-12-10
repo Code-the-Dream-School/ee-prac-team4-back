@@ -46,6 +46,7 @@ const getUserDecks = async (req, res) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid user ID' });
         }
         
+        // added pagination
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
