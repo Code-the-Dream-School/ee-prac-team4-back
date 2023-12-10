@@ -78,7 +78,6 @@ const getUserDecks = async (req, res) => {
                 };
             }));
 
-            // this is a decorator
             const usersFavorites = user.favorite_decks;
             for (let deck of decksWithDetailedFlashcards) {
                 deck.isFavorite = usersFavorites.includes(deck._id);
