@@ -16,6 +16,8 @@ const authenticateUser = require('./middleware/authentication');
 
 const mainRouter = require('./routes/mainRouter.js');
 const userRouter = require('./routes/User.js');
+const resourcesRouter = require('./routes/Resources');
+const unathorizedResourceRouter = require('./routes/UnauthorizedResources');
 const flashcardsRouter = require('./routes/Flashcards.js');
 const allUnauthFlashcardsRouter = require('./routes/flashcardsAllUnauth.js');
 const decksRouter = require('./routes/Decks.js');
