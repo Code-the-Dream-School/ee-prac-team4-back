@@ -46,6 +46,7 @@ const getUserDecks = async (req, res) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid user ID' });
         }
         
+        // added pagination
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
 
@@ -64,7 +65,7 @@ const getUserDecks = async (req, res) => {
                 if (deck.flashcards.length === 0) {
                     return {
                         ...deck.toObject(),
-                        flashcards: [], // or any other default value
+                        flashcards: [], 
                     };
                 }
                 
@@ -77,7 +78,6 @@ const getUserDecks = async (req, res) => {
                 };
             }));
 
-            // this is a decorator
             const usersFavorites = user.favorite_decks;
             for (let deck of decksWithDetailedFlashcards) {
                 deck.isFavorite = usersFavorites.includes(deck._id);
@@ -96,7 +96,7 @@ const getUserDecks = async (req, res) => {
     }
 };
 
-// get detailed deck information along with flashcards 
+// get detailed deck information with detailed flashcards 
 const getDeckWithFlashcards = async (req, res) => {
     try {
         const deckId = req.params.id; 
