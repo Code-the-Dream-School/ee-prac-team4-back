@@ -42,8 +42,6 @@ app.use('/api/v1', mainRouter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/flashcard', authenticateUser, flashcardsRouter);
 app.use('/api/v1/flashcardsAll', allUnauthFlashcardsRouter);
-app.use('/api/v1/deck', authenticateUser, decksRouter);
-app.use('/api/v1/decksAll', allUnauthDecksRouter);
 app.use('/api/v1/resources', authenticateUser, resourcesRouter);
 app.use('/api/v1/unathresources', unathorizedResourceRouter);
 

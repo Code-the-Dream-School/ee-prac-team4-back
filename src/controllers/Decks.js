@@ -60,14 +60,6 @@ const getUserDecks = async (req, res) => {
 
             // Fetch detailed flashcards for each deck
             const decksWithDetailedFlashcards = await Promise.all(decks.map(async (deck) => {
-
-                if (deck.flashcards.length === 0) {
-                    return {
-                        ...deck.toObject(),
-                        flashcards: [], // or any other default value
-                    };
-                }
-                
                 const detailedFlashcards = await getDetailedFlashcards(deck.flashcards);
     
                 // Decorate each deck with detailed flashcards
