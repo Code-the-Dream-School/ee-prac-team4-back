@@ -96,7 +96,7 @@ const getUserDecks = async (req, res) => {
     }
 };
 
-// get detailed deck information along with flashcards 
+// get detailed deck information with detailed flashcards 
 const getDeckWithFlashcards = async (req, res) => {
     try {
         const deckId = req.params.id; 
