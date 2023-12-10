@@ -48,8 +48,6 @@ app.use('/api/v1/decksAll', allUnauthDecksRouter);
 app.use('/api/v1/resources', authenticateUser, resourcesRouter);
 app.use('/api/v1/unathresources', unathorizedResourceRouter);   
 
-// commented out line - for testing purposes
-
 // swagger link
 app.use('/api/v1/api-docs', swaggerUI.serve);
 app.get('/api/v1/api-docs', swaggerUI.setup(swaggerDocument));

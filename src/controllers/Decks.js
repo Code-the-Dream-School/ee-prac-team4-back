@@ -65,7 +65,7 @@ const getUserDecks = async (req, res) => {
                 if (deck.flashcards.length === 0) {
                     return {
                         ...deck.toObject(),
-                        flashcards: [], // or any other default value
+                        flashcards: [], 
                     };
                 }
                 
