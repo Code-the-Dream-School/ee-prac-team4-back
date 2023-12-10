@@ -20,6 +20,8 @@ const flashcardsRouter = require('./routes/Flashcards.js');
 const allUnauthFlashcardsRouter = require('./routes/flashcardsAllUnauth.js');
 const decksRouter = require('./routes/Decks.js');
 const allUnauthDecksRouter = require('./routes/decksAllUnauth');
+const resourcesRouter = require('./routes/Resources.js')
+const unathorizedResourceRouter = require('./routes/UnauthorizedResources.js')
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const notFoundMiddleware = require('./middleware/not-found');
 
