@@ -37,9 +37,6 @@ app.use(express.static('public'));
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(cookieParser(process.env.JWT_SECRET));
 
-const resourcesRouter = require('./routes/Resources');
-const unathorizedResourceRouter = require('./routes/UnauthorizedResources');
-
 // routes
 app.use('/api/v1', mainRouter);
 app.use('/api/v1/user', userRouter);
