@@ -11,6 +11,10 @@ const deckSchema = new mongoose.Schema({
         type: String,
         maxlength: 300,
     },
+    title: {
+        type: String,
+        maxlength: 300,
+    },
     isPublic: {
         type: Boolean,
         default: false,

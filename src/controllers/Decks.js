@@ -121,6 +121,7 @@ const getDeckWithFlashcards = async (req, res) => {
                 _id: deck._id,
                 topic: deck.topic,
                 subtopic: deck.subtopic,
+                title: deck.title,
                 isPublic: deck.isPublic,
                 createdBy: deck.createdBy,
                 flashcards: detailedFlashcards,
@@ -146,7 +147,7 @@ const createDeck = async (req, res) => {
 // update deck
 const updateDeck = async (req, res) => {
     const {
-        body: { topic, subtopic, isPublic, createdBy, flashcards },
+        body: { topic, subtopic, title, isPublic, createdBy, flashcards },
         user: { userId },
         params: { id: deckId }
     } = req;
@@ -159,6 +160,10 @@ const updateDeck = async (req, res) => {
 
     if (subtopic !== undefined) {
         updatedFields.subtopic = subtopic;
+    }
+
+    if (title !== undefined) {
+        updatedFields.title = title;
     }
 
     if (isPublic !== undefined) {
