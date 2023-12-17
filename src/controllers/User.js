@@ -160,7 +160,7 @@ const login = async (req, res) => {
       // for testing
       const expiresInTimestamp = exp;
       const expirationDate = new Date(expiresInTimestamp * 1000); // Multiply by 1000 to convert to milliseconds
-      console.log("expirationDate is: ", expirationDate);
+      console.log("expirationDate in login is: ", expirationDate);
 
     } catch (error) {
         console.error(error);
