@@ -66,6 +66,8 @@ const register = async (req, res) => {
         // generate a JWT token for the newly registered user
         const token = createJWT(newUser);
 
+        console.log('JWT_LIFETIME_register:', process.env.JWT_LIFETIME);
+
         res.setHeader(
             'Set-Cookie',
             cookies.serialize('token', token, {
@@ -90,6 +92,12 @@ const register = async (req, res) => {
             token, 
             expiresIn: process.env.JWT_LIFETIME, // extract the expiration time from the token
         });
+
+        // for testing
+        const expiresInTimestamp = 10800;
+        const expirationDate = new Date(expiresInTimestamp * 1000); // Multiply by 1000 to convert to milliseconds
+        console.log("expirationDate in Register is: ", expirationDate);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -113,11 +121,14 @@ const login = async (req, res) => {
         }
 
         // Create a JWT - JSON Web Token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { // or username
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_LIFETIME,
         });
 
         req.user = { userId: user._id };
+
+        // extract the expiration time from the token
+        const { exp } = jwt.decode(token);
 
         res.setHeader(
             'Set-Cookie',
@@ -125,14 +136,11 @@ const login = async (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 60 * 60 * 8, // 24 hours
+                maxAge: exp, 
                 path: '/',
                 secure: true,
             })
         );
-
-        // extract the expiration time from the token
-        const { exp } = jwt.decode(token);
 
         // Send the JWT token in the response
         res.status(200).json({ 
@@ -144,14 +152,19 @@ const login = async (req, res) => {
                 lastName: user.lastName,
                 role: user.role
             }, 
-                userId:user._id, 
-                token,
-                expiresIn: exp * 1000,
-            });
+            userId: user._id, 
+            token,
+            expiresIn: exp, // expiration timestamp in seDconds since the epoch. When converted to a human readable date it corresponds to the time in the .env file
+        });
+
+        // for testing
+        const expiresInTimestamp = exp;
+        const expirationDate = new Date(expiresInTimestamp * 1000); // Multiply by 1000 to convert to milliseconds
+        console.log("expirationDate is: ", expirationDate);
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ msg: 'Internal server error' })
+        res.status(500).json({ msg: 'Internal server error' });
     }
 };
 
