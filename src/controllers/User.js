@@ -73,7 +73,7 @@ const register = async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 60 * 60 * 8, // 24 hours
+        maxAge: process.env.JWT_LIFETIME,
         path: '/',
         secure: true,
       })
